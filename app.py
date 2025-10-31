@@ -1073,14 +1073,15 @@ def conferir_item_inventario(inventario_id, ativo_id):
     try:
         novo_status = request.form.get('status', 'Conferido')  # 'Conferido' ou 'Não Localizado'
         observacao = request.form.get('observacao', '')
+        usuario = current_user.username if current_user.is_authenticated else 'Sistema'
 
         with sqlite3.connect(DB) as conn:
             # Atualizar item
             conn.execute('''
                 UPDATE inventario_itens
-                SET status = ?, observacao = ?, conferido_por = 'Admin', data_conferencia = CURRENT_TIMESTAMP
+                SET status = ?, observacao = ?, conferido_por = ?, data_conferencia = CURRENT_TIMESTAMP
                 WHERE inventario_id = ? AND ativo_id = ?
-            ''', (novo_status, observacao, inventario_id, ativo_id))
+            ''', (novo_status, observacao, usuario, inventario_id, ativo_id))
 
             # Recalcular totais
             totais = conn.execute('''

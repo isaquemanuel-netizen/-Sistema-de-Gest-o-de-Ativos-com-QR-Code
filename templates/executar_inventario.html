@@ -69,32 +69,75 @@
         </div>
     </div>
 
-    <!-- Filtros -->
+    <!-- Modo de Visualização -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-3 col-sm-6">
-                    <select class="form-select form-select-sm" id="filtroStatus" onchange="filtrarItens()">
-                        <option value="">Todos os Status</option>
-                        <option value="Pendente" selected>Pendentes</option>
-                        <option value="Conferido">Conferidos</option>
-                        <option value="Não Localizado">Não Localizados</option>
-                    </select>
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-primary" id="btnModoLista" onclick="alternarModo('lista')">
+                            <i class="bi bi-list-ul"></i> Modo Lista
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnModoScan" onclick="alternarModo('scan')">
+                            <i class="bi bi-qr-code-scan"></i> Modo Scan
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <input type="text" class="form-control form-control-sm" id="busca" placeholder="Buscar..." onkeyup="filtrarItens()">
+                <div class="col" id="filtrosLista">
+                    <div class="row g-2">
+                        <div class="col-md-4 col-sm-6">
+                            <select class="form-select form-select-sm" id="filtroStatus" onchange="filtrarItens()">
+                                <option value="">Todos os Status</option>
+                                <option value="Pendente" selected>Pendentes</option>
+                                <option value="Conferido">Conferidos</option>
+                                <option value="Não Localizado">Não Localizados</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <input type="text" class="form-control form-control-sm" id="busca" placeholder="Buscar..." onkeyup="filtrarItens()">
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <button class="btn btn-sm btn-outline-secondary w-100" onclick="limparFiltros()">
+                                <i class="bi bi-x-circle"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <button class="btn btn-sm btn-outline-secondary w-100" onclick="limparFiltros()">
-                        <i class="bi bi-x-circle"></i> Limpar
-                    </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner QR Code -->
+    <div class="card mb-4" id="scannerContainer" style="display: none;">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h5 class="mb-3">
+                        <i class="bi bi-qr-code-scan me-2"></i>Scanner QR Code
+                    </h5>
+                    <div id="qr-reader" style="width: 100%; border-radius: 8px; overflow: hidden;"></div>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Como usar:</strong> Aponte a câmera para o QR Code do ativo. O item será marcado automaticamente como conferido.
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h5 class="mb-3">
+                        <i class="bi bi-clock-history me-2"></i>Últimos Scanneados
+                    </h5>
+                    <div id="ultimosScanneados" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-qr-code display-4"></i>
+                            <p class="mt-2">Aguardando primeiro scan...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Lista de Ativos -->
-    <div class="card">
+    <div class="card" id="listaContainer">
         <div class="card-body">
             <div id="listaAtivos">
                 {% if itens %}
@@ -223,9 +266,15 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- html5-qrcode Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
     const inventarioId = {{ inventario[0] }};
     let ativoAtualId = null;
+    let html5QrCode = null;
+    let modoAtual = 'lista';
+    let scanHistory = [];
 
     // Inicializar tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -354,6 +403,256 @@
             form.action = `/inventario/${inventarioId}/finalizar`;
             document.body.appendChild(form);
             form.submit();
+        }
+    }
+
+    // Alternar entre modo lista e scan
+    function alternarModo(modo) {
+        modoAtual = modo;
+
+        if (modo === 'scan') {
+            // Ativar modo scan
+            document.getElementById('btnModoScan').classList.remove('btn-outline-primary');
+            document.getElementById('btnModoScan').classList.add('btn-primary');
+            document.getElementById('btnModoLista').classList.remove('btn-primary');
+            document.getElementById('btnModoLista').classList.add('btn-outline-primary');
+
+            document.getElementById('filtrosLista').style.display = 'none';
+            document.getElementById('listaContainer').style.display = 'none';
+            document.getElementById('scannerContainer').style.display = 'block';
+
+            iniciarScanner();
+        } else {
+            // Ativar modo lista
+            document.getElementById('btnModoLista').classList.remove('btn-outline-primary');
+            document.getElementById('btnModoLista').classList.add('btn-primary');
+            document.getElementById('btnModoScan').classList.remove('btn-primary');
+            document.getElementById('btnModoScan').classList.add('btn-outline-primary');
+
+            document.getElementById('filtrosLista').style.display = 'block';
+            document.getElementById('listaContainer').style.display = 'block';
+            document.getElementById('scannerContainer').style.display = 'none';
+
+            pararScanner();
+        }
+    }
+
+    // Iniciar scanner QR
+    function iniciarScanner() {
+        html5QrCode = new Html5Qrcode("qr-reader");
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+        };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                processarScan(decodedText);
+            },
+            (errorMessage) => {
+                // Ignorar erros de scan (são muito frequentes)
+            }
+        ).catch(err => {
+            console.error('Erro ao iniciar scanner:', err);
+            showToast('Erro ao acessar câmera. Verifique as permissões.', 'error');
+        });
+    }
+
+    // Parar scanner QR
+    function pararScanner() {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode = null;
+            }).catch(err => {
+                console.error('Erro ao parar scanner:', err);
+            });
+        }
+    }
+
+    // Processar scan do QR Code
+    function processarScan(decodedText) {
+        // Extrair ID do ativo da URL do QR Code
+        // Formato esperado: http://localhost:5000/ativo/123
+        let ativoId = null;
+
+        try {
+            const url = new URL(decodedText);
+            const pathParts = url.pathname.split('/');
+            const ativoIndex = pathParts.indexOf('ativo');
+
+            if (ativoIndex !== -1 && pathParts.length > ativoIndex + 1) {
+                ativoId = parseInt(pathParts[ativoIndex + 1]);
+            }
+        } catch (e) {
+            // Se não for uma URL válida, tentar extrair apenas o número
+            const match = decodedText.match(/\/ativo\/(\d+)/);
+            if (match) {
+                ativoId = parseInt(match[1]);
+            }
+        }
+
+        if (!ativoId) {
+            showToast('QR Code inválido', 'error');
+            playErrorSound();
+            return;
+        }
+
+        // Verificar se o ativo está neste inventário
+        const itemElement = document.getElementById(`item-${ativoId}`);
+        if (!itemElement) {
+            showToast('Ativo não encontrado neste inventário', 'warning');
+            playErrorSound();
+            return;
+        }
+
+        const status = itemElement.dataset.status;
+        if (status === 'Conferido') {
+            showToast('Ativo já foi conferido anteriormente', 'info');
+            playErrorSound();
+            return;
+        }
+
+        // Marcar como conferido
+        conferirItemScan(ativoId);
+    }
+
+    // Conferir item via scan
+    function conferirItemScan(ativoId) {
+        fetch(`/inventario/${inventarioId}/conferir/${ativoId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'status=Conferido'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                playSuccessSound();
+
+                // Obter informações do ativo
+                const itemElement = document.getElementById(`item-${ativoId}`);
+                const codigo = itemElement.dataset.codigo;
+                const nome = itemElement.dataset.nome;
+
+                // Adicionar ao histórico
+                adicionarAoHistorico(ativoId, codigo, nome);
+
+                // Atualizar elemento na lista
+                itemElement.dataset.status = 'Conferido';
+
+                // Atualizar contadores
+                atualizarContadores();
+
+                showToast(`✓ ${codigo} conferido!`, 'success');
+            } else {
+                showToast('Erro ao conferir ativo', 'error');
+                playErrorSound();
+            }
+        })
+        .catch(error => {
+            showToast('Erro ao conferir ativo', 'error');
+            playErrorSound();
+            console.error('Error:', error);
+        });
+    }
+
+    // Adicionar ao histórico de scans
+    function adicionarAoHistorico(ativoId, codigo, nome) {
+        const agora = new Date();
+        const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        scanHistory.unshift({ ativoId, codigo, nome, hora });
+
+        // Manter apenas os últimos 10
+        if (scanHistory.length > 10) {
+            scanHistory.pop();
+        }
+
+        // Atualizar interface
+        const container = document.getElementById('ultimosScanneados');
+
+        if (scanHistory.length === 1) {
+            // Primeiro item, limpar mensagem inicial
+            container.innerHTML = '';
+        }
+
+        const itemHtml = `
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">${codigo}</h6>
+                    <small class="text-muted">${nome}</small>
+                </div>
+                <div class="text-end">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    <br>
+                    <small class="text-muted">${hora}</small>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('afterbegin', itemHtml);
+    }
+
+    // Atualizar contadores
+    function atualizarContadores() {
+        // Recarregar página para atualizar contadores
+        // Em produção, seria melhor fazer isso via AJAX
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    }
+
+    // Sons de feedback
+    function playSuccessSound() {
+        // Som de sucesso (beep curto)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+
+        // Vibração no celular
+        if ('vibrate' in navigator) {
+            navigator.vibrate(100);
+        }
+    }
+
+    function playErrorSound() {
+        // Som de erro (beep longo e grave)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 200;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+
+        // Vibração no celular
+        if ('vibrate' in navigator) {
+            navigator.vibrate([100, 50, 100]);
         }
     }
 
