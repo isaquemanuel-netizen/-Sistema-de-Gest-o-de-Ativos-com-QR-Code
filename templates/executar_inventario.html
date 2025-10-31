@@ -115,20 +115,47 @@
                     <h5 class="mb-3">
                         <i class="bi bi-qr-code-scan me-2"></i>Scanner QR Code
                     </h5>
+
+                    <!-- Área do Scanner -->
                     <div id="qr-reader" style="width: 100%; border-radius: 8px; overflow: hidden;"></div>
-                    <div class="alert alert-info mt-3 mb-0">
+
+                    <!-- Erro de Câmera -->
+                    <div class="alert alert-warning mt-3" id="cameraError" style="display: none;">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Câmera não disponível</strong>
+                        <p class="mb-2 mt-2">A câmera requer HTTPS para funcionar. Use o input manual abaixo:</p>
+                    </div>
+
+                    <!-- Input Manual -->
+                    <div class="mt-3" id="manualInputContainer">
+                        <label class="form-label"><i class="bi bi-keyboard me-2"></i>Ou digite o código do ativo:</label>
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control"
+                                   id="codigoManual"
+                                   placeholder="Ex: AT001, COMP-2023-001..."
+                                   autocomplete="off"
+                                   autofocus>
+                            <button class="btn btn-primary" onclick="conferirPorCodigo()" type="button">
+                                <i class="bi bi-check-lg"></i> Conferir
+                            </button>
+                        </div>
+                        <small class="text-muted">Pressione Enter para conferir</small>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0" id="scanInstructions">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Como usar:</strong> Aponte a câmera para o QR Code do ativo. O item será marcado automaticamente como conferido.
+                        <strong>Como usar:</strong> Aponte a câmera para o QR Code do ativo ou digite o código manualmente. O item será marcado automaticamente como conferido.
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <h5 class="mb-3">
-                        <i class="bi bi-clock-history me-2"></i>Últimos Scanneados
+                        <i class="bi bi-clock-history me-2"></i>Últimos Conferidos
                     </h5>
-                    <div id="ultimosScanneados" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                    <div id="ultimosScanneados" class="list-group" style="max-height: 450px; overflow-y: auto;">
                         <div class="text-center text-muted py-4">
                             <i class="bi bi-qr-code display-4"></i>
-                            <p class="mt-2">Aguardando primeiro scan...</p>
+                            <p class="mt-2">Aguardando primeira conferência...</p>
                         </div>
                     </div>
                 </div>
@@ -458,7 +485,25 @@
             }
         ).catch(err => {
             console.error('Erro ao iniciar scanner:', err);
-            showToast('Erro ao acessar câmera. Verifique as permissões.', 'error');
+
+            // Mostrar erro e input manual
+            document.getElementById('qr-reader').style.display = 'none';
+            document.getElementById('cameraError').style.display = 'block';
+            document.getElementById('manualInputContainer').style.display = 'block';
+
+            let errorMsg = 'Câmera não disponível. ';
+            if (err.name === 'NotAllowedError') {
+                errorMsg = 'Permissão de câmera negada. Use o input manual.';
+            } else if (err.name === 'NotFoundError') {
+                errorMsg = 'Câmera não encontrada. Use o input manual.';
+            } else if (err.name === 'NotSupportedError' || err.name === 'TypeError') {
+                errorMsg = 'A câmera requer HTTPS. Use o input manual.';
+            }
+
+            showToast(errorMsg, 'warning');
+
+            // Focar no input manual
+            document.getElementById('codigoManual').focus();
         });
     }
 
@@ -655,6 +700,69 @@
             navigator.vibrate([100, 50, 100]);
         }
     }
+
+    // Conferir por código manual
+    function conferirPorCodigo() {
+        const codigoInput = document.getElementById('codigoManual');
+        const codigo = codigoInput.value.trim().toUpperCase();
+
+        if (!codigo) {
+            showToast('Digite o código do ativo', 'warning');
+            codigoInput.focus();
+            return;
+        }
+
+        // Buscar ativo pelo código
+        const itens = document.querySelectorAll('.item-inventario');
+        let ativoEncontrado = null;
+
+        itens.forEach(item => {
+            const itemCodigo = item.dataset.codigo.toUpperCase();
+            if (itemCodigo === codigo) {
+                ativoEncontrado = {
+                    id: parseInt(item.dataset.ativoId),
+                    codigo: item.dataset.codigo,
+                    nome: item.dataset.nome,
+                    status: item.dataset.status
+                };
+            }
+        });
+
+        if (!ativoEncontrado) {
+            showToast(`Ativo "${codigo}" não encontrado neste inventário`, 'error');
+            playErrorSound();
+            codigoInput.select();
+            return;
+        }
+
+        if (ativoEncontrado.status === 'Conferido') {
+            showToast('Ativo já foi conferido anteriormente', 'info');
+            playErrorSound();
+            codigoInput.value = '';
+            codigoInput.focus();
+            return;
+        }
+
+        // Conferir o ativo
+        conferirItemScan(ativoEncontrado.id);
+
+        // Limpar input
+        codigoInput.value = '';
+        codigoInput.focus();
+    }
+
+    // Listener para Enter no input manual
+    document.addEventListener('DOMContentLoaded', function() {
+        const codigoInput = document.getElementById('codigoManual');
+        if (codigoInput) {
+            codigoInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    conferirPorCodigo();
+                }
+            });
+        }
+    });
 
     // Aplicar filtro inicial
     filtrarItens();
