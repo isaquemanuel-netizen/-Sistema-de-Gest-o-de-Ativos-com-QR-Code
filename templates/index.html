@@ -40,12 +40,11 @@
                             <th class="desktop">Responsável</th>
                             <th class="all">Estado</th>
                             <th class="desktop text-center">QR</th>
-                            <th class="all text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for ativo in ativos %}
-                        <tr>
+                        <tr class="clickable-row" onclick="window.location='{{ url_for('ativo', ativo_id=ativo[0]) }}';" style="cursor: pointer;">
                             <td data-order="{{ ativo[0] }}">
                                 <strong>{{ ativo[1] }}</strong>
                                 <small class="d-block d-sm-none text-muted">#{{ ativo[0] }}</small>
@@ -90,7 +89,7 @@
                                     <span class="badge bg-secondary">{{ ativo[7] }}</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" onclick="event.stopPropagation();">
                                 <img src="/static/qrcodes/ativo_{{ ativo[0] }}.png"
                                      alt="QR"
                                      style="width: 35px; height: 35px; cursor: pointer;"
@@ -98,28 +97,6 @@
                                      data-bs-toggle="tooltip"
                                      title="Ver QR Code"
                                      loading="lazy">
-                            </td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ url_for('ativo', ativo_id=ativo[0]) }}"
-                                       class="btn btn-outline-primary"
-                                       data-bs-toggle="tooltip"
-                                       title="Ver Detalhes">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{{ url_for('editar', ativo_id=ativo[0]) }}"
-                                       class="btn btn-outline-warning"
-                                       data-bs-toggle="tooltip"
-                                       title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')"
-                                            class="btn btn-outline-danger"
-                                            data-bs-toggle="tooltip"
-                                            title="Excluir">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -221,7 +198,7 @@
             },
             columnDefs: [
                 {
-                    targets: [7, 8], // QR Code e Ações não são ordenáveis
+                    targets: 7, // QR Code não é ordenável
                     orderable: false
                 },
                 {
@@ -235,10 +212,6 @@
                 {
                     responsivePriority: 3,
                     targets: 6 // Estado sempre visível
-                },
-                {
-                    responsivePriority: 4,
-                    targets: 8 // Ações sempre visíveis
                 }
             ]
         });

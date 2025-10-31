@@ -35,12 +35,11 @@
                             <th class="text-center d-none d-md-table-cell">Conferidos</th>
                             <th>Status</th>
                             <th class="d-none d-lg-table-cell">Data Início</th>
-                            <th class="text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for inv in inventarios %}
-                        <tr>
+                        <tr class="clickable-row" onclick="window.location='{{ url_for('relatorio_inventario', inventario_id=inv[0]) }}';" style="cursor: pointer;">
                             <td><span class="badge bg-secondary">#{{ inv[0] }}</span></td>
                             <td>
                                 <strong>{{ inv[1] }}</strong>
@@ -97,30 +96,6 @@
                             </td>
                             <td class="d-none d-lg-table-cell">
                                 <small>{{ inv[12][:16] if inv[12] else '-' }}</small>
-                            </td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    {% if inv[7] == 'Em Andamento' %}
-                                    <a href="{{ url_for('executar_inventario', inventario_id=inv[0]) }}"
-                                       class="btn btn-outline-primary"
-                                       data-bs-toggle="tooltip"
-                                       title="Executar Inventário">
-                                        <i class="bi bi-play-circle"></i>
-                                    </a>
-                                    {% endif %}
-                                    <a href="{{ url_for('relatorio_inventario', inventario_id=inv[0]) }}"
-                                       class="btn btn-outline-info"
-                                       data-bs-toggle="tooltip"
-                                       title="Ver Relatório">
-                                        <i class="bi bi-file-text"></i>
-                                    </a>
-                                    <a href="{{ url_for('exportar_inventario', inventario_id=inv[0]) }}"
-                                       class="btn btn-outline-success"
-                                       data-bs-toggle="tooltip"
-                                       title="Exportar Excel">
-                                        <i class="bi bi-file-earmark-excel"></i>
-                                    </a>
-                                </div>
                             </td>
                         </tr>
                         {% endfor %}

@@ -10,24 +10,44 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-        <div>
-            <h2 class="mb-1">
-                <i class="bi bi-file-text me-2"></i>Relatório<span class="d-none d-sm-inline"> de Inventário</span>
-            </h2>
-            <p class="text-muted mb-0">{{ inventario[1] }}</p>
+    <!-- Header com Ações Destacadas -->
+    <div class="mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <h2 class="mb-1">
+                    <i class="bi bi-file-text me-2"></i>Relatório<span class="d-none d-sm-inline"> de Inventário</span>
+                </h2>
+                <p class="text-muted mb-0">{{ inventario[1] }}</p>
+            </div>
         </div>
-        <div class="btn-group flex-shrink-0 w-100 w-md-auto">
-            <a href="{{ url_for('executar_inventario', inventario_id=inventario[0]) }}" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
-            </a>
-            <a href="{{ url_for('exportar_inventario', inventario_id=inventario[0]) }}" class="btn btn-success">
-                <i class="bi bi-file-earmark-excel"></i> <span class="d-none d-sm-inline">Exportar</span>
-            </a>
-            <button class="btn btn-outline-secondary" onclick="window.print()">
-                <i class="bi bi-printer"></i> <span class="d-none d-sm-inline">Imprimir</span>
-            </button>
+
+        <!-- Barra de Ações Destacada -->
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(10, 92, 60, 0.05) 0%, rgba(30, 64, 175, 0.05) 100%);">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2 text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        <span class="small d-none d-md-inline">Ações disponíveis para este inventário:</span>
+                        <span class="small d-md-none">Ações:</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('inventarios') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
+                        </a>
+                        {% if inventario[7] == 'Em Andamento' %}
+                        <a href="{{ url_for('executar_inventario', inventario_id=inventario[0]) }}" class="btn btn-primary btn-sm" style="min-width: 110px;">
+                            <i class="bi bi-play-circle"></i> Executar
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('exportar_inventario', inventario_id=inventario[0]) }}" class="btn btn-success btn-sm" style="min-width: 110px;">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="bi bi-printer"></i> <span class="d-none d-sm-inline">Imprimir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -10,34 +10,52 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
-        <div class="flex-grow-1">
-            <h2 class="mb-1">
-                {% if categoria %}
-                <i class="{{ categoria[1] }} me-2" style="color: {{ categoria[2] }}"></i>
-                {% else %}
-                <i class="bi bi-box-seam me-2"></i>
-                {% endif %}
-                <span class="d-block d-sm-inline">{{ ativo[2] }}</span>
-            </h2>
-            <div class="text-muted mb-0 d-flex flex-wrap gap-2 gap-sm-3">
-                <span><strong>Código:</strong> {{ ativo[1] }}</span>
-                <span class="d-none d-sm-inline">|</span>
-                <span><strong>SN:</strong> {{ ativo[3] }}</span>
-                {% if categoria %}
-                <span class="d-none d-sm-inline">|</span>
-                <span><span class="badge" style="background-color: {{ categoria[2] }}">{{ categoria[0] }}</span></span>
-                {% endif %}
+    <!-- Header com Ações Destacadas -->
+    <div class="mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+            <div class="flex-grow-1">
+                <h2 class="mb-1">
+                    {% if categoria %}
+                    <i class="{{ categoria[1] }} me-2" style="color: {{ categoria[2] }}"></i>
+                    {% else %}
+                    <i class="bi bi-box-seam me-2"></i>
+                    {% endif %}
+                    <span class="d-block d-sm-inline">{{ ativo[2] }}</span>
+                </h2>
+                <div class="text-muted mb-0 d-flex flex-wrap gap-2 gap-sm-3">
+                    <span><strong>Código:</strong> {{ ativo[1] }}</span>
+                    <span class="d-none d-sm-inline">|</span>
+                    <span><strong>SN:</strong> {{ ativo[3] }}</span>
+                    {% if categoria %}
+                    <span class="d-none d-sm-inline">|</span>
+                    <span><span class="badge" style="background-color: {{ categoria[2] }}">{{ categoria[0] }}</span></span>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="btn-group flex-shrink-0 w-100 w-md-auto">
-            <a href="{{ url_for('editar', ativo_id=ativo[0]) }}" class="btn btn-warning">
-                <i class="bi bi-pencil"></i> <span class="d-none d-sm-inline">Editar</span>
-            </a>
-            <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')" class="btn btn-danger">
-                <i class="bi bi-trash"></i> <span class="d-none d-sm-inline">Excluir</span>
-            </button>
+
+        <!-- Barra de Ações Destacada -->
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(10, 92, 60, 0.05) 0%, rgba(30, 64, 175, 0.05) 100%);">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2 text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        <span class="small d-none d-md-inline">Ações disponíveis para este ativo:</span>
+                        <span class="small d-md-none">Ações:</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('ativos') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
+                        </a>
+                        <a href="{{ url_for('editar', ativo_id=ativo[0]) }}" class="btn btn-warning btn-sm" style="min-width: 100px;">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')" class="btn btn-danger btn-sm" style="min-width: 100px;">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
