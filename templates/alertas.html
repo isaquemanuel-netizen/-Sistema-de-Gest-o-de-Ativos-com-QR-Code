@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Alertas por Email - Sistema de Ativos{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+<li class="breadcrumb-item active">Alertas por Email</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="mb-1">
+            <i class="bi bi-envelope me-2"></i>Alertas por Email
+        </h2>
+        <p class="text-muted mb-0">Configure notificações automáticas por email</p>
+    </div>
+
+    <div class="row">
+        <!-- Status e Configuração -->
+        <div class="col-lg-6">
+            <!-- Status dos Alertas -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Status do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if config.alertas_habilitados %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Alertas Habilitados</strong>
+                        <p class="mb-0 small">O sistema enviará notificações automáticas</p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Alertas Desabilitados</strong>
+                        <p class="mb-0 small">Configure o arquivo .env para habilitar</p>
+                    </div>
+                    {% endif %}
+
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>Servidor SMTP:</strong></td>
+                            <td>{{ config.smtp_server }}:{{ config.smtp_port }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Usuário SMTP:</strong></td>
+                            <td>{{ config.smtp_user or 'Não configurado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email Remetente:</strong></td>
+                            <td>{{ config.email_from or 'Não configurado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Destinatários:</strong></td>
+                            <td>
+                                {% if config.destinatarios and config.destinatarios[0] %}
+                                    {{ config.destinatarios|join(', ') }}
+                                {% else %}
+                                    <span class="text-muted">Não configurado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Enviar Email de Teste -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-send me-2"></i>Testar Configuração
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Envie um email de teste para verificar se a configuração está correta.</p>
+
+                    <form method="POST" action="{{ url_for('enviar_email_teste') }}" class="mb-3">
+                        <div class="mb-3">
+                            <label for="email_teste" class="form-label">Email de Destino</label>
+                            <input type="email"
+                                   class="form-control"
+                                   id="email_teste"
+                                   name="email_teste"
+                                   placeholder="seu-email@exemplo.com"
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Enviar Email de Teste
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tipos de Alertas e Verificação Manual -->
+        <div class="col-lg-6">
+            <!-- Tipos de Alertas -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bell me-2"></i>Tipos de Alertas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-shield-exclamation fs-4 text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Garantias Vencendo</h6>
+                                    <small class="text-muted">Alerta 30 dias antes do vencimento</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-tools fs-4 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Manutenções Agendadas</h6>
+                                    <small class="text-muted">Lembrete 7 dias antes da data agendada</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-plus-circle fs-4 text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Novos Ativos</h6>
+                                    <small class="text-muted">Notificação ao cadastrar novos ativos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verificação Manual -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-search me-2"></i>Verificação Manual
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Execute verificações manuais e envie alertas imediatamente.</p>
+
+                    <div class="d-grid gap-2">
+                        <form method="POST" action="{{ url_for('verificar_garantias') }}" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Verificar Garantias
+                                {% if stats.garantias_vencendo > 0 %}
+                                <span class="badge bg-warning text-dark ms-2">{{ stats.garantias_vencendo }}</span>
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ url_for('verificar_manutencoes') }}" class="d-inline">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-tools me-2"></i>
+                                Verificar Manutenções
+                                {% if stats.manutencoes_proximas > 0 %}
+                                <span class="badge bg-primary ms-2">{{ stats.manutencoes_proximas }}</span>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        As verificações automáticas devem ser agendadas no servidor (cron job)
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruções de Configuração -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>Como Configurar
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-1-circle me-2 text-primary"></i>Configurar Credenciais SMTP</h6>
+                            <p class="text-muted small">Crie um arquivo <code>.env</code> na raiz do projeto baseado no <code>.env.example</code>:</p>
+                            <pre class="bg-light p-3 rounded small"><code>ALERTAS_EMAIL=true
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu-email@gmail.com
+SMTP_PASSWORD=sua-senha-de-app
+EMAIL_FROM=seu-email@gmail.com
+ALERTAS_DESTINATARIOS=admin@empresa.com</code></pre>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-2-circle me-2 text-primary"></i>Gmail: Senha de App</h6>
+                            <p class="text-muted small">Se usar Gmail, você precisa criar uma "Senha de App":</p>
+                            <ol class="small">
+                                <li>Acesse <a href="https://myaccount.google.com/security" target="_blank">Configurações de Segurança</a></li>
+                                <li>Ative a verificação em 2 etapas</li>
+                                <li>Vá em "Senhas de App"</li>
+                                <li>Crie uma senha para "Email"</li>
+                                <li>Use essa senha no <code>SMTP_PASSWORD</code></li>
+                            </ol>
+
+                            <h6 class="mt-3"><i class="bi bi-3-circle me-2 text-primary"></i>Agendar Verificações</h6>
+                            <p class="text-muted small">Execute o script periodicamente:</p>
+                            <pre class="bg-light p-3 rounded small"><code># Crontab (Linux/Mac)
+0 9 * * * cd /caminho/projeto && python email_service.py
+
+# Task Scheduler (Windows)
+docker exec sistema_ativos_qr python email_service.py</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Inventário - Sistema de Ativos{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('inventarios') }}">Inventários</a></li>
+<li class="breadcrumb-item active">Novo Inventário</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="mb-3 mb-md-4">
+        <h2 class="mb-1">
+            <i class="bi bi-clipboard-plus me-2"></i><span class="d-none d-sm-inline">Criar </span>Novo Inventário
+        </h2>
+        <p class="text-muted d-none d-sm-block">Preencha as informações abaixo para criar um novo inventário</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-12 col-xl-10 col-xxl-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Dados do Inventário
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('criar_inventario') }}" method="POST" id="formNovoInventario">
+                        <div class="row g-3">
+                            <!-- Título -->
+                            <div class="col-12">
+                                <label for="titulo" class="form-label required">Título do Inventário</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-card-heading"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="titulo"
+                                           name="titulo"
+                                           placeholder="Ex: Inventário Anual 2024, Inventário TI Sala 101"
+                                           required>
+                                </div>
+                            </div>
+
+                            <!-- Descrição -->
+                            <div class="col-12">
+                                <label for="descricao" class="form-label">Descrição (Opcional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-card-text"></i>
+                                    </span>
+                                    <textarea class="form-control"
+                                              id="descricao"
+                                              name="descricao"
+                                              rows="2"
+                                              placeholder="Descreva o objetivo do inventário..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Tipo de Inventário -->
+                            <div class="col-12">
+                                <label class="form-label required">Tipo de Inventário</label>
+                                <div class="list-group">
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-2" type="radio" name="tipo" value="completo" id="tipoCompleto" checked>
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div>
+                                                <strong><i class="bi bi-grid-3x3 me-1"></i> Completo</strong>
+                                                <p class="mb-0 small text-muted">Inventariar todos os ativos do sistema</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-2" type="radio" name="tipo" value="categoria" id="tipoCategoria">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div>
+                                                <strong><i class="bi bi-tag me-1"></i> Por Categoria</strong>
+                                                <p class="mb-0 small text-muted">Inventariar ativos de uma categoria específica</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-2" type="radio" name="tipo" value="localizacao" id="tipoLocalizacao">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div>
+                                                <strong><i class="bi bi-geo-alt me-1"></i> Por Localização</strong>
+                                                <p class="mb-0 small text-muted">Inventariar ativos de uma localização específica</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-2" type="radio" name="tipo" value="responsavel" id="tipoResponsavel">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div>
+                                                <strong><i class="bi bi-person me-1"></i> Por Responsável</strong>
+                                                <p class="mb-0 small text-muted">Inventariar ativos de um responsável específico</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Filtro Categoria -->
+                            <div class="col-12 filtro-grupo" id="filtroCategoria" style="display: none;">
+                                <label for="filtro_categoria" class="form-label">Selecione a Categoria</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-tag"></i>
+                                    </span>
+                                    <select class="form-select" id="filtro_categoria" name="filtro_categoria">
+                                        <option value="">Selecione uma categoria...</option>
+                                        {% for cat in categorias %}
+                                        <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filtro Localização -->
+                            <div class="col-12 filtro-grupo" id="filtroLocalizacao" style="display: none;">
+                                <label for="filtro_localizacao" class="form-label">Selecione a Localização</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+                                    <select class="form-select" id="filtro_localizacao" name="filtro_localizacao">
+                                        <option value="">Selecione uma localização...</option>
+                                        {% for loc in localizacoes %}
+                                        <option value="{{ loc[0] }}">{{ loc[0] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filtro Responsável -->
+                            <div class="col-12 filtro-grupo" id="filtroResponsavel" style="display: none;">
+                                <label for="filtro_responsavel" class="form-label">Selecione o Responsável</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <select class="form-select" id="filtro_responsavel" name="filtro_responsavel">
+                                        <option value="">Selecione um responsável...</option>
+                                        {% for resp in responsaveis %}
+                                        <option value="{{ resp[0] }}">{{ resp[0] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <hr class="my-4">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
+                            <a href="{{ url_for('inventarios') }}" class="btn btn-outline-secondary order-1 order-sm-0">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary order-0 order-sm-1">
+                                <i class="bi bi-check-circle me-2"></i>Criar<span class="d-none d-sm-inline"> Inventário</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="col-12 col-xl-2 col-xxl-4 mt-3 mt-xl-0">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-question-circle me-2"></i>Ajuda
+                    </h5>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="bi bi-lightbulb me-1"></i>Tipos de Inventário
+                        </h6>
+                        <ul class="small">
+                            <li><strong>Completo:</strong> Todos os ativos</li>
+                            <li><strong>Categoria:</strong> Filtra por tipo</li>
+                            <li><strong>Localização:</strong> Filtra por sala/setor</li>
+                            <li><strong>Responsável:</strong> Filtra por pessoa</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Dica:</strong> Use inventários parciais para conferências mais rápidas e focadas.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show/hide filtros baseado no tipo selecionado
+    const radioTipo = document.querySelectorAll('input[name="tipo"]');
+    const filtros = {
+        'categoria': document.getElementById('filtroCategoria'),
+        'localizacao': document.getElementById('filtroLocalizacao'),
+        'responsavel': document.getElementById('filtroResponsavel')
+    };
+
+    radioTipo.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Esconder todos os filtros
+            Object.values(filtros).forEach(filtro => {
+                filtro.style.display = 'none';
+                filtro.querySelector('select').required = false;
+            });
+
+            // Mostrar filtro correspondente
+            if (this.value !== 'completo' && filtros[this.value]) {
+                filtros[this.value].style.display = 'block';
+                filtros[this.value].querySelector('select').required = true;
+            }
+        });
+    });
+
+    // Form validation
+    (function() {
+        'use strict';
+        const form = document.getElementById('formNovoInventario');
+
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                showToast('Por favor, preencha todos os campos obrigatórios!', 'error');
+            } else {
+                showLoading();
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+    })();
+</script>
+{% endblock %}

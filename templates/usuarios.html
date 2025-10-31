@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Gestão de Usuários{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h2><i class="bi bi-people"></i> Gestão de Usuários</h2>
+                    <p class="text-muted mb-0">Gerencie usuários do sistema</p>
+                </div>
+                <a href="{{ url_for('novo_usuario') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i> Novo Usuário
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {% if category == 'error' %}
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {% elif category == 'success' %}
+        <i class="bi bi-check-circle me-2"></i>
+        {% elif category == 'warning' %}
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {% else %}
+        <i class="bi bi-info-circle me-2"></i>
+        {% endif %}
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="usuariosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Último Acesso</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario[0] }}</td>
+                            <td>
+                                <strong>{{ usuario[1] }}</strong>
+                                {% if usuario[1] == current_user.username %}
+                                <span class="badge bg-info ms-1">Você</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ usuario[3] }}</td>
+                            <td>{{ usuario[2] }}</td>
+                            <td>
+                                {% if usuario[4] == 'admin' %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-shield-fill-check"></i> Administrador
+                                </span>
+                                {% elif usuario[4] == 'gestor' %}
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-person-badge"></i> Gestor
+                                </span>
+                                {% elif usuario[4] == 'tecnico' %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-tools"></i> Técnico
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-eye"></i> Visualizador
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario[5] %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Ativo
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Inativo
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario[6] %}
+                                {{ usuario[6] }}
+                                {% else %}
+                                <span class="text-muted">Nunca</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if usuario[1] != 'admin' %}
+                                <form action="{{ url_for('toggle_usuario', id=usuario[0]) }}"
+                                      method="POST"
+                                      style="display: inline-block;"
+                                      onsubmit="return confirm('Tem certeza que deseja {{ 'desativar' if usuario[5] else 'ativar' }} este usuário?');">
+                                    {% if usuario[5] %}
+                                    <button type="submit" class="btn btn-sm btn-warning" title="Desativar">
+                                        <i class="bi bi-pause-circle"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-sm btn-success" title="Ativar">
+                                        <i class="bi bi-play-circle"></i>
+                                    </button>
+                                    {% endif %}
+                                </form>
+                                {% else %}
+                                <span class="text-muted" title="Admin não pode ser desativado">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="bi bi-info-circle"></i> Perfis de Usuário
+            </h5>
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="border rounded p-3">
+                        <h6 class="text-danger"><i class="bi bi-shield-fill-check"></i> Administrador</h6>
+                        <small class="text-muted">Acesso total ao sistema, incluindo gestão de usuários</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="border rounded p-3">
+                        <h6 class="text-primary"><i class="bi bi-person-badge"></i> Gestor</h6>
+                        <small class="text-muted">Pode criar, editar e visualizar ativos</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="border rounded p-3">
+                        <h6 class="text-warning"><i class="bi bi-tools"></i> Técnico</h6>
+                        <small class="text-muted">Pode editar ativos e realizar manutenções</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="border rounded p-3">
+                        <h6 class="text-secondary"><i class="bi bi-eye"></i> Visualizador</h6>
+                        <small class="text-muted">Apenas visualização de ativos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#usuariosTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        },
+        order: [[0, 'asc']],
+        pageLength: 25,
+        responsive: true
+    });
+});
+</script>
+{% endblock %}

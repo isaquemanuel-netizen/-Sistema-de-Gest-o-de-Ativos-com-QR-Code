@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ categoria[1] }} - Categorias{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('categorias') }}">Categorias</a></li>
+<li class="breadcrumb-item active">{{ categoria[1] }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="{{ categoria[3] }} me-2" style="color: {{ categoria[4] }}"></i>{{ categoria[1] }}
+            </h2>
+            <p class="text-muted mb-0">{{ categoria[2] if categoria[2] else 'Categoria de ativos' }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('categorias') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+            <a href="{{ url_for('novo') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Novo Ativo
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid {{ categoria[4] }} !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total de Ativos</p>
+                            <h3 class="mb-0">{{ ativos|length }}</h3>
+                        </div>
+                        <div class="p-3 rounded" style="background-color: {{ categoria[4] }}15;">
+                            <i class="{{ categoria[3] }} fs-4" style="color: {{ categoria[4] }}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Ativos Ativos</p>
+                            <h3 class="mb-0">
+                                {% set ativos_count = ativos|selectattr('7', 'equalto', 'Ativo')|list|length %}
+                                {{ ativos_count }}
+                            </h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-check-circle fs-4 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Em Manutenção</p>
+                            <h3 class="mb-0">
+                                {% set manutencao_count = ativos|selectattr('7', 'in', ['Em manutenção', 'Em Manutenção'])|list|length %}
+                                {{ manutencao_count }}
+                            </h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-tools fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assets Table -->
+    {% if ativos %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Lista de Ativos
+                </h5>
+                <span class="badge bg-secondary">{{ ativos|length }} ativos</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Série</th>
+                            <th>Localização</th>
+                            <th>Responsável</th>
+                            <th>Estado</th>
+                            <th style="width: 120px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ativo in ativos %}
+                        <tr>
+                            <td class="text-muted">#{{ ativo[0] }}</td>
+                            <td>
+                                <strong>{{ ativo[1] }}</strong>
+                            </td>
+                            <td>
+                                <i class="{{ categoria[3] }} me-1" style="color: {{ categoria[4] }}"></i>
+                                {{ ativo[2] }}
+                            </td>
+                            <td><code class="small">{{ ativo[3] }}</code></td>
+                            <td>
+                                <i class="bi bi-geo-alt text-muted me-1"></i>
+                                {{ ativo[5] }}
+                            </td>
+                            <td>
+                                <i class="bi bi-person text-muted me-1"></i>
+                                {{ ativo[6] }}
+                            </td>
+                            <td>
+                                {% if ativo[7] == 'Ativo' %}
+                                <span class="badge bg-success">{{ ativo[7] }}</span>
+                                {% elif ativo[7] in ['Em manutenção', 'Em Manutenção'] %}
+                                <span class="badge bg-warning text-dark">{{ ativo[7] }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ ativo[7] }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('ativo', ativo_id=ativo[0]) }}"
+                                       class="btn btn-outline-primary"
+                                       title="Ver Detalhes">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('editar', ativo_id=ativo[0]) }}"
+                                       class="btn btn-outline-secondary"
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div class="mb-4">
+                <i class="{{ categoria[3] }} display-1 text-muted" style="opacity: 0.3;"></i>
+            </div>
+            <h4 class="text-muted mb-3">Nenhum ativo nesta categoria</h4>
+            <p class="text-muted mb-4">
+                Ainda não há ativos cadastrados na categoria <strong>{{ categoria[1] }}</strong>.
+            </p>
+            <a href="{{ url_for('novo') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Adicionar Primeiro Ativo
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

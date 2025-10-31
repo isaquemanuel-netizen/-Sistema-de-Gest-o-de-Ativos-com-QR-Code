@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: sistema_ativos_qr
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ativos.db:/app/ativos.db
+      - ./static/qrcodes:/app/static/qrcodes
+    environment:
+      - FLASK_APP=app.py
+      - PYTHONUNBUFFERED=1
+      - BASE_URL=http://11.1.106.225:5000
+    restart: unless-stopped

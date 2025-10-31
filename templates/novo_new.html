@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Ativo - Sistema de Ativos{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="/">Ativos</a></li>
+<li class="breadcrumb-item active">Novo Ativo</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="mb-1">
+            <i class="bi bi-plus-circle me-2"></i>Adicionar Novo Ativo
+        </h2>
+        <p class="text-muted">Preencha as informações do ativo abaixo</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Informações do Ativo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="/add" method="POST" id="formNovoAtivo">
+                        <div class="row g-3">
+                            <!-- Código ID -->
+                            <div class="col-md-6">
+                                <label for="codigo_id" class="form-label required">Código do Ativo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-hash"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="codigo_id"
+                                           name="codigo_id"
+                                           placeholder="Ex: PC001, NB002"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o código do ativo.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                                <small class="text-muted">Código único para identificação</small>
+                            </div>
+
+                            <!-- Nome -->
+                            <div class="col-md-6">
+                                <label for="nome" class="form-label required">Nome do Ativo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-laptop"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="nome"
+                                           name="nome"
+                                           placeholder="Ex: Desktop HP EliteDesk"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome do ativo.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Número de Série -->
+                            <div class="col-md-6">
+                                <label for="sn" class="form-label required">Número de Série (SN)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-upc-scan"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="sn"
+                                           name="sn"
+                                           placeholder="Ex: SN123456789"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o número de série.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-6">
+                                <label for="estado" class="form-label required">Estado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-activity"></i>
+                                    </span>
+                                    <select class="form-select" id="estado" name="estado" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="Ativo" selected>Ativo</option>
+                                        <option value="Inativo">Inativo</option>
+                                        <option value="Em manutenção">Em Manutenção</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione o estado.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Descrição -->
+                            <div class="col-12">
+                                <label for="descricao" class="form-label required">Descrição</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-card-text"></i>
+                                    </span>
+                                    <textarea class="form-control"
+                                              id="descricao"
+                                              name="descricao"
+                                              rows="3"
+                                              placeholder="Descreva o ativo em detalhes..."
+                                              required></textarea>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe a descrição.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Localização -->
+                            <div class="col-md-6">
+                                <label for="localizacao" class="form-label required">Localização</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="localizacao"
+                                           name="localizacao"
+                                           placeholder="Ex: Sala TI - 1º Andar"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe a localização.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Responsável -->
+                            <div class="col-md-6">
+                                <label for="responsavel" class="form-label required">Responsável</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="responsavel"
+                                           name="responsavel"
+                                           placeholder="Ex: João Silva"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o responsável.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Ótimo!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Salvar Ativo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="col-xl-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-question-circle me-2"></i>Ajuda
+                    </h5>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="bi bi-lightbulb me-1"></i>Dicas
+                        </h6>
+                        <ul class="small">
+                            <li>Use códigos únicos e sequenciais (PC001, PC002...)</li>
+                            <li>O número de série deve ser exatamente como está no equipamento</li>
+                            <li>Seja detalhado na descrição do ativo</li>
+                            <li>Especifique a localização física completa</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>QR Code:</strong> Após salvar, um QR Code será gerado automaticamente para este ativo.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        const form = document.getElementById('formNovoAtivo');
+
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                showToast('Por favor, preencha todos os campos obrigatórios!', 'error');
+            } else {
+                showLoading();
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+    })();
+
+    // Auto-generate codigo suggestion
+    document.getElementById('nome').addEventListener('blur', function() {
+        const codigoInput = document.getElementById('codigo_id');
+        if (!codigoInput.value) {
+            // Simple suggestion - user can modify
+            const nome = this.value;
+            if (nome) {
+                const prefix = nome.substring(0, 2).toUpperCase();
+                const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                codigoInput.value = prefix + random;
+                codigoInput.focus();
+                codigoInput.select();
+            }
+        }
+    });
+</script>
+{% endblock %}

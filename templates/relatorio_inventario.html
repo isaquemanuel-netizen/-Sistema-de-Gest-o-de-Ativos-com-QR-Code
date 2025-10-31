@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório - {{ inventario[1] }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('inventarios') }}">Inventários</a></li>
+<li class="breadcrumb-item active">Relatório</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-file-text me-2"></i>Relatório<span class="d-none d-sm-inline"> de Inventário</span>
+            </h2>
+            <p class="text-muted mb-0">{{ inventario[1] }}</p>
+        </div>
+        <div class="btn-group flex-shrink-0 w-100 w-md-auto">
+            <a href="{{ url_for('executar_inventario', inventario_id=inventario[0]) }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
+            </a>
+            <a href="{{ url_for('exportar_inventario', inventario_id=inventario[0]) }}" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> <span class="d-none d-sm-inline">Exportar</span>
+            </a>
+            <button class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="bi bi-printer"></i> <span class="d-none d-sm-inline">Imprimir</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Total de Ativos</h6>
+                    <h2 class="mb-0">{{ inventario[8] }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6 class="text-success">Conferidos</h6>
+                    <h2 class="mb-0 text-success">{{ inventario[9] }}</h2>
+                    <small class="text-muted">
+                        {{ (inventario[9]/inventario[8]*100)|round(1) if inventario[8] > 0 else 0 }}%
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h6 class="text-danger">Não Localizados</h6>
+                    <h2 class="mb-0 text-danger">{{ inventario[10] }}</h2>
+                    <small class="text-muted">
+                        {{ (inventario[10]/inventario[8]*100)|round(1) if inventario[8] > 0 else 0 }}%
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="text-warning">Pendentes</h6>
+                    <h2 class="mb-0 text-warning">{{ inventario[8] - inventario[9] - inventario[10] }}</h2>
+                    <small class="text-muted">
+                        {{ ((inventario[8] - inventario[9] - inventario[10])/inventario[8]*100)|round(1) if inventario[8] > 0 else 0 }}%
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações do Inventário -->
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-info-circle me-2"></i>Informações do Inventário
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <strong>Título:</strong><br>
+                    {{ inventario[1] }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Tipo:</strong><br>
+                    {% if inventario[3] == 'completo' %}
+                        <span class="badge bg-info">Completo</span>
+                    {% elif inventario[3] == 'categoria' %}
+                        <span class="badge bg-primary">Categoria</span>
+                    {% elif inventario[3] == 'localizacao' %}
+                        <span class="badge bg-warning">Localização</span>
+                    {% elif inventario[3] == 'responsavel' %}
+                        <span class="badge bg-success">Responsável</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Status:</strong><br>
+                    {% if inventario[7] == 'Em Andamento' %}
+                        <span class="badge bg-warning">Em Andamento</span>
+                    {% elif inventario[7] == 'Concluído' %}
+                        <span class="badge bg-success">Concluído</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Iniciado em:</strong><br>
+                    {{ inventario[12][:16] if inventario[12] else '-' }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Finalizado em:</strong><br>
+                    {{ inventario[13][:16] if inventario[13] else 'Em andamento' }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Iniciado por:</strong><br>
+                    {{ inventario[11] }}
+                </div>
+                {% if inventario[2] %}
+                <div class="col-12">
+                    <strong>Descrição:</strong><br>
+                    {{ inventario[2] }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ativos Não Localizados (se houver) -->
+    {% if nao_localizados %}
+    <div class="card mb-4 border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-exclamation-triangle me-2"></i>Ativos Não Localizados ({{ nao_localizados|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Atenção!</strong> Os seguintes ativos não foram localizados durante o inventário.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th class="d-none d-md-table-cell">Localização</th>
+                            <th class="d-none d-lg-table-cell">Responsável</th>
+                            <th class="d-none d-md-table-cell">Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in nao_localizados %}
+                        <tr>
+                            <td><code>{{ item[0] }}</code></td>
+                            <td>{{ item[1] }}</td>
+                            <td class="d-none d-md-table-cell">{{ item[2] }}</td>
+                            <td class="d-none d-lg-table-cell">{{ item[3] }}</td>
+                            <td class="d-none d-md-table-cell">
+                                {% if item[4] %}
+                                <small class="text-muted">{{ item[4] }}</small>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Ativos Pendentes (se houver) -->
+    {% if pendentes %}
+    <div class="card mb-4 border-warning">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">
+                <i class="bi bi-clock me-2"></i>Ativos Pendentes ({{ pendentes|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Aviso!</strong> Os seguintes ativos ainda não foram conferidos.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th class="d-none d-md-table-cell">Localização</th>
+                            <th class="d-none d-lg-table-cell">Responsável</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in pendentes %}
+                        <tr>
+                            <td><code>{{ item[0] }}</code></td>
+                            <td>{{ item[1] }}</td>
+                            <td class="d-none d-md-table-cell">{{ item[2] }}</td>
+                            <td class="d-none d-lg-table-cell">{{ item[3] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Ativos Conferidos -->
+    {% if conferidos %}
+    <div class="card mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-check-circle me-2"></i>Ativos Conferidos ({{ conferidos|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th class="d-none d-md-table-cell">Localização</th>
+                            <th class="d-none d-lg-table-cell">Conferido Por</th>
+                            <th class="d-none d-lg-table-cell">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in conferidos %}
+                        <tr>
+                            <td><code>{{ item[0] }}</code></td>
+                            <td>{{ item[1] }}</td>
+                            <td class="d-none d-md-table-cell">{{ item[2] }}</td>
+                            <td class="d-none d-lg-table-cell">{{ item[3] }}</td>
+                            <td class="d-none d-lg-table-cell"><small>{{ item[4][:16] if item[4] else '-' }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Conclusão -->
+    <div class="card">
+        <div class="card-body text-center">
+            <p class="mb-0">
+                <strong>Sistema de Gestão de Ativos</strong> - Relatório de Inventário
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .sidebar, .topbar, .breadcrumb, .btn-group, button, a {
+            display: none !important;
+        }
+        .card {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}

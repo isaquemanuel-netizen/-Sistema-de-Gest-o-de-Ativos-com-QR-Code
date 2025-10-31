@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Usuário{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h2><i class="bi bi-person-plus"></i> Novo Usuário</h2>
+                    <p class="text-muted mb-0">Criar novo usuário no sistema</p>
+                </div>
+                <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {% if category == 'error' %}
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {% elif category == 'success' %}
+        <i class="bi bi-check-circle me-2"></i>
+        {% elif category == 'warning' %}
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {% else %}
+        <i class="bi bi-info-circle me-2"></i>
+        {% endif %}
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" id="novoUsuarioForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">
+                                    Username <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-at"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="username"
+                                           name="username"
+                                           placeholder="usuario123"
+                                           required
+                                           pattern="[a-zA-Z0-9_]{3,50}"
+                                           title="3-50 caracteres: letras, números e underscore">
+                                </div>
+                                <small class="text-muted">Usado para fazer login</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email"
+                                           class="form-control"
+                                           id="email"
+                                           name="email"
+                                           placeholder="usuario@empresa.com"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">
+                                Nome Completo <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       id="nome"
+                                       name="nome"
+                                       placeholder="Nome completo do usuário"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="senha" class="form-label">
+                                    Senha <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-lock"></i>
+                                    </span>
+                                    <input type="password"
+                                           class="form-control"
+                                           id="senha"
+                                           name="senha"
+                                           placeholder="********"
+                                           required
+                                           minlength="6">
+                                </div>
+                                <small class="text-muted">Mínimo 6 caracteres</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="senha_confirmacao" class="form-label">
+                                    Confirmar Senha <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-lock-fill"></i>
+                                    </span>
+                                    <input type="password"
+                                           class="form-control"
+                                           id="senha_confirmacao"
+                                           name="senha_confirmacao"
+                                           placeholder="********"
+                                           required
+                                           minlength="6">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="perfil" class="form-label">
+                                Perfil <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="perfil" name="perfil" required>
+                                <option value="">Selecione um perfil...</option>
+                                <option value="visualizador">
+                                    <i class="bi bi-eye"></i> Visualizador - Apenas visualização
+                                </option>
+                                <option value="tecnico">
+                                    Técnico - Pode editar e realizar manutenções
+                                </option>
+                                <option value="gestor">
+                                    Gestor - Pode criar, editar e gerenciar
+                                </option>
+                                <option value="admin">
+                                    Administrador - Acesso total ao sistema
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="ativo"
+                                       name="ativo"
+                                       checked>
+                                <label class="form-check-label" for="ativo">
+                                    Usuário ativo
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Dica:</strong> O usuário receberá as credenciais e deverá alterar a senha no primeiro acesso.
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Criar Usuário
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('novoUsuarioForm').addEventListener('submit', function(e) {
+    const senha = document.getElementById('senha').value;
+    const senhaConfirmacao = document.getElementById('senha_confirmacao').value;
+
+    if (senha !== senhaConfirmacao) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+        return false;
+    }
+
+    if (senha.length < 6) {
+        e.preventDefault();
+        alert('A senha deve ter no mínimo 6 caracteres!');
+        return false;
+    }
+});
+</script>
+{% endblock %}

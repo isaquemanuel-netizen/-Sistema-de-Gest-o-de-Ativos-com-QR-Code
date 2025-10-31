@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ativo[1] }} - {{ ativo[2] }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="/">Ativos</a></li>
+<li class="breadcrumb-item active">{{ ativo[1] }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-box-seam me-2"></i>{{ ativo[1] }}
+            </h2>
+            <p class="text-muted mb-0">{{ ativo[2] }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <a href="/editar/{{ ativo[0] }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Excluir
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Info -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Informações Gerais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-hash me-1"></i>Código do Ativo
+                                </label>
+                                <div class="h5 mb-0">{{ ativo[1] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-laptop me-1"></i>Nome
+                                </label>
+                                <div class="h5 mb-0">{{ ativo[2] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-upc-scan me-1"></i>Número de Série
+                                </label>
+                                <div class="h5 mb-0">
+                                    <code class="text-dark">{{ ativo[3] }}</code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2"
+                                            onclick="copyToClipboard('{{ ativo[3] }}')"
+                                            title="Copiar SN">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-activity me-1"></i>Estado
+                                </label>
+                                <div>
+                                    {% if ativo[7] == 'Ativo' %}
+                                        <span class="badge bg-success fs-6">
+                                            <i class="bi bi-check-circle me-1"></i>Ativo
+                                        </span>
+                                    {% elif ativo[7] == 'Inativo' %}
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="bi bi-x-circle me-1"></i>Inativo
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark fs-6 pulse">
+                                            <i class="bi bi-tools me-1"></i>{{ ativo[7] }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-card-text me-1"></i>Descrição
+                                </label>
+                                <div class="text-dark">{{ ativo[4] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-geo-alt me-1"></i>Localização
+                                </label>
+                                <div class="h6 mb-0 text-primary">{{ ativo[5] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="text-muted small d-block mb-1">
+                                    <i class="bi bi-person me-1"></i>Responsável
+                                </label>
+                                <div class="h6 mb-0 text-info">{{ ativo[6] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline (Placeholder) -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Histórico de Atividades
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Funcionalidade de histórico em desenvolvimento. Em breve você poderá ver todas as alterações e movimentações deste ativo.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- QR Code Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-qr-code me-2"></i>QR Code
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='qrcodes/ativo_' ~ ativo[0] ~ '.png') }}"
+                         alt="QR Code"
+                         class="img-fluid rounded shadow-sm mb-3"
+                         style="max-width: 250px;">
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('static', filename='qrcodes/ativo_' ~ ativo[0] ~ '.png') }}"
+                           download="QR_{{ ativo[1] }}.png"
+                           class="btn btn-primary">
+                            <i class="bi bi-download me-2"></i>Baixar QR Code
+                        </a>
+
+                        <button onclick="printQRCode('{{ url_for('static', filename='qrcodes/ativo_' ~ ativo[0] ~ '.png') }}')"
+                                class="btn btn-outline-primary">
+                            <i class="bi bi-printer me-2"></i>Imprimir QR Code
+                        </button>
+
+                        <a href="/ver/{{ ativo[0] }}"
+                           target="_blank"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-eye me-2"></i>Visualizar Página Pública
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/editar/{{ ativo[0] }}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil me-2"></i>Editar Informações
+                        </a>
+
+                        <button class="btn btn-outline-info"
+                                onclick="showToast('Funcionalidade em desenvolvimento', 'info')">
+                            <i class="bi bi-arrow-left-right me-2"></i>Transferir Ativo
+                        </button>
+
+                        <button class="btn btn-outline-secondary"
+                                onclick="showToast('Funcionalidade em desenvolvimento', 'info')">
+                            <i class="bi bi-tools me-2"></i>Registrar Manutenção
+                        </button>
+
+                        <hr>
+
+                        <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')"
+                                class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-2"></i>Excluir Ativo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function deleteAtivo(id, nome) {
+        if (confirm(`Tem certeza que deseja excluir o ativo "${nome}"?\n\nEsta ação não pode ser desfeita e o QR Code será removido.`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/deletar/${id}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

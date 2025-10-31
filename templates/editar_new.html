@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Editar - {{ ativo[1] }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="/">Ativos</a></li>
+<li class="breadcrumb-item"><a href="/ativo/{{ ativo[0] }}">{{ ativo[1] }}</a></li>
+<li class="breadcrumb-item active">Editar</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="mb-1">
+            <i class="bi bi-pencil-square me-2"></i>Editar Ativo
+        </h2>
+        <p class="text-muted">{{ ativo[1] }} - {{ ativo[2] }}</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Informações do Ativo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="formEditarAtivo">
+                        <div class="row g-3">
+                            <!-- Código ID -->
+                            <div class="col-md-6">
+                                <label for="codigo_id" class="form-label required">Código do Ativo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-hash"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="codigo_id"
+                                           name="codigo_id"
+                                           value="{{ ativo[1] }}"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o código do ativo.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nome -->
+                            <div class="col-md-6">
+                                <label for="nome" class="form-label required">Nome do Ativo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-laptop"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="nome"
+                                           name="nome"
+                                           value="{{ ativo[2] }}"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome do ativo.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Número de Série -->
+                            <div class="col-md-6">
+                                <label for="sn" class="form-label required">Número de Série (SN)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-upc-scan"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="sn"
+                                           name="sn"
+                                           value="{{ ativo[3] }}"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o número de série.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-6">
+                                <label for="estado" class="form-label required">Estado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-activity"></i>
+                                    </span>
+                                    <select class="form-select" id="estado" name="estado" required>
+                                        <option value="Ativo" {% if ativo[7] == 'Ativo' %}selected{% endif %}>Ativo</option>
+                                        <option value="Inativo" {% if ativo[7] == 'Inativo' %}selected{% endif %}>Inativo</option>
+                                        <option value="Em manutenção" {% if ativo[7] in ['Em manutenção', 'Em Manutenção'] %}selected{% endif %}>Em Manutenção</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione o estado.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Descrição -->
+                            <div class="col-12">
+                                <label for="descricao" class="form-label required">Descrição</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-card-text"></i>
+                                    </span>
+                                    <textarea class="form-control"
+                                              id="descricao"
+                                              name="descricao"
+                                              rows="3"
+                                              required>{{ ativo[4] }}</textarea>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe a descrição.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Localização -->
+                            <div class="col-md-6">
+                                <label for="localizacao" class="form-label required">Localização</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="localizacao"
+                                           name="localizacao"
+                                           value="{{ ativo[5] }}"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe a localização.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Responsável -->
+                            <div class="col-md-6">
+                                <label for="responsavel" class="form-label required">Responsável</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="responsavel"
+                                           name="responsavel"
+                                           value="{{ ativo[6] }}"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o responsável.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{{ url_for('ativo', ativo_id=ativo[0]) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-warning" onclick="resetForm()">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>Resetar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Salvar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-xl-4">
+            <!-- Preview Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-eye me-2"></i>Preview do QR Code
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='qrcodes/ativo_' ~ ativo[0] ~ '.png') }}"
+                         alt="QR Code"
+                         class="img-fluid rounded shadow-sm mb-3"
+                         style="max-width: 200px;">
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        O QR Code permanecerá o mesmo após edição
+                    </p>
+                </div>
+            </div>
+
+            <!-- Changes Warning -->
+            <div class="card bg-warning bg-opacity-10 border-warning">
+                <div class="card-body">
+                    <h6 class="text-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Atenção
+                    </h6>
+                    <ul class="small mb-0 text-muted">
+                        <li>Verifique todas as informações antes de salvar</li>
+                        <li>Mudanças no estado podem afetar relatórios</li>
+                        <li>A localização e responsável podem ser alterados livremente</li>
+                        <li>O ID do ativo não pode ser alterado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Store original values
+    const originalValues = {
+        codigo_id: document.getElementById('codigo_id').value,
+        nome: document.getElementById('nome').value,
+        sn: document.getElementById('sn').value,
+        descricao: document.getElementById('descricao').value,
+        localizacao: document.getElementById('localizacao').value,
+        responsavel: document.getElementById('responsavel').value,
+        estado: document.getElementById('estado').value
+    };
+
+    // Reset form to original values
+    function resetForm() {
+        if (confirm('Descartar todas as alterações e voltar aos valores originais?')) {
+            document.getElementById('codigo_id').value = originalValues.codigo_id;
+            document.getElementById('nome').value = originalValues.nome;
+            document.getElementById('sn').value = originalValues.sn;
+            document.getElementById('descricao').value = originalValues.descricao;
+            document.getElementById('localizacao').value = originalValues.localizacao;
+            document.getElementById('responsavel').value = originalValues.responsavel;
+            document.getElementById('estado').value = originalValues.estado;
+
+            // Remove validation classes
+            document.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+                el.classList.remove('is-valid', 'is-invalid');
+            });
+
+            showToast('Formulário resetado para valores originais', 'info');
+        }
+    }
+
+    // Form validation
+    (function() {
+        'use strict';
+        const form = document.getElementById('formEditarAtivo');
+
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                showToast('Por favor, preencha todos os campos obrigatórios!', 'error');
+            } else {
+                // Check if anything changed
+                const changed =
+                    document.getElementById('codigo_id').value !== originalValues.codigo_id ||
+                    document.getElementById('nome').value !== originalValues.nome ||
+                    document.getElementById('sn').value !== originalValues.sn ||
+                    document.getElementById('descricao').value !== originalValues.descricao ||
+                    document.getElementById('localizacao').value !== originalValues.localizacao ||
+                    document.getElementById('responsavel').value !== originalValues.responsavel ||
+                    document.getElementById('estado').value !== originalValues.estado;
+
+                if (!changed) {
+                    event.preventDefault();
+                    showToast('Nenhuma alteração foi feita!', 'warning');
+                    return;
+                }
+
+                showLoading();
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+    })();
+
+    // Warn before leaving if unsaved changes
+    let formChanged = false;
+
+    document.querySelectorAll('#formEditarAtivo input, #formEditarAtivo select, #formEditarAtivo textarea').forEach(field => {
+        field.addEventListener('change', function() {
+            formChanged = true;
+        });
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    });
+
+    // Clear flag on submit
+    document.getElementById('formEditarAtivo').addEventListener('submit', function() {
+        formChanged = false;
+    });
+</script>
+{% endblock %}

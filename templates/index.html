@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Ativos - Sistema de Ativos{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+<li class="breadcrumb-item active">Ativos</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <h2 class="mb-0">
+            <i class="bi bi-box-seam me-2"></i><span class="d-none d-sm-inline">Gerenciamento de </span>Ativos
+        </h2>
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+            <a href="{{ url_for('exportar') }}" class="btn btn-outline-success btn-sm btn-md-normal">
+                <i class="bi bi-file-earmark-excel"></i> <span class="d-none d-sm-inline">Exportar </span>Excel
+            </a>
+            <a href="{{ url_for('novo') }}" class="btn btn-primary btn-sm btn-md-normal">
+                <i class="bi bi-plus-circle"></i> Novo<span class="d-none d-sm-inline"> Ativo</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+        <div class="card-body">
+            <!-- DataTable -->
+            <div class="table-responsive">
+                <table id="ativosTable" class="table table-hover table-sm nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="all">Código</th>
+                            <th class="all">Nome</th>
+                            <th class="desktop">SN</th>
+                            <th class="none">Descrição</th>
+                            <th class="tablet-l">Localização</th>
+                            <th class="desktop">Responsável</th>
+                            <th class="all">Estado</th>
+                            <th class="desktop text-center">QR</th>
+                            <th class="all text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ativo in ativos %}
+                        <tr>
+                            <td data-order="{{ ativo[0] }}">
+                                <strong>{{ ativo[1] }}</strong>
+                                <small class="d-block d-sm-none text-muted">#{{ ativo[0] }}</small>
+                            </td>
+                            <td>
+                                {{ ativo[2] }}
+                                <small class="d-block d-md-none text-muted">
+                                    <i class="bi bi-hash"></i>{{ ativo[3] }}
+                                </small>
+                            </td>
+                            <td><code class="small">{{ ativo[3] }}</code></td>
+                            <td>{{ ativo[4] }}</td>
+                            <td>
+                                <i class="bi bi-geo-alt text-primary me-1"></i>
+                                <span class="d-none d-md-inline">{{ ativo[5] }}</span>
+                                <span class="d-md-none">{{ ativo[5][:15] }}{% if ativo[5]|length > 15 %}...{% endif %}</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-person text-info me-1"></i>
+                                {{ ativo[6] }}
+                            </td>
+                            <td>
+                                {% if ativo[7] == 'Ativo' %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle d-none d-sm-inline"></i>
+                                        <span class="d-none d-sm-inline">Ativo</span>
+                                        <span class="d-sm-none">✓</span>
+                                    </span>
+                                {% elif ativo[7] == 'Inativo' %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle d-none d-sm-inline"></i>
+                                        <span class="d-none d-sm-inline">Inativo</span>
+                                        <span class="d-sm-none">✗</span>
+                                    </span>
+                                {% elif ativo[7] in ['Em manutenção', 'Em Manutenção'] %}
+                                    <span class="badge bg-warning text-dark pulse">
+                                        <i class="bi bi-tools d-none d-sm-inline"></i>
+                                        <span class="d-none d-sm-inline">Manutenção</span>
+                                        <span class="d-sm-none">🔧</span>
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ ativo[7] }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <img src="/static/qrcodes/ativo_{{ ativo[0] }}.png"
+                                     alt="QR"
+                                     style="width: 35px; height: 35px; cursor: pointer;"
+                                     onclick="showQRModal('{{ ativo[0] }}', '{{ ativo[1] }}', '{{ ativo[2] }}')"
+                                     data-bs-toggle="tooltip"
+                                     title="Ver QR Code"
+                                     loading="lazy">
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('ativo', ativo_id=ativo[0]) }}"
+                                       class="btn btn-outline-primary"
+                                       data-bs-toggle="tooltip"
+                                       title="Ver Detalhes">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('editar', ativo_id=ativo[0]) }}"
+                                       class="btn btn-outline-warning"
+                                       data-bs-toggle="tooltip"
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button onclick="deleteAtivo({{ ativo[0] }}, '{{ ativo[1] }}')"
+                                            class="btn btn-outline-danger"
+                                            data-bs-toggle="tooltip"
+                                            title="Excluir">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrModalLabel">
+                    <i class="bi bi-qr-code me-2"></i>QR Code<span class="d-none d-sm-inline"> do Ativo</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <img id="qrModalImage"
+                     src=""
+                     alt="QR Code"
+                     class="img-fluid rounded mb-3 shadow"
+                     style="max-width: 280px; width: 100%;">
+                <h6 id="qrModalAtivo" class="text-muted"></h6>
+            </div>
+            <div class="modal-footer flex-column flex-sm-row gap-2">
+                <a id="qrDownloadLink"
+                   href=""
+                   download
+                   class="btn btn-primary w-100 w-sm-auto order-1 order-sm-0">
+                    <i class="bi bi-download me-1"></i> <span class="d-none d-sm-inline">Baixar </span>QR Code
+                </a>
+                <button type="button"
+                        class="btn btn-secondary w-100 w-sm-auto order-0 order-sm-1"
+                        data-bs-dismiss="modal">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with Responsive
+        const table = $('#ativosTable').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/pt-BR.json'
+            },
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+            order: [[0, 'desc']], // Ordenar por Código/ID desc
+            dom: '<"row mb-3"<"col-12 col-sm-6 col-md-6 mb-2 mb-sm-0"l><"col-12 col-sm-6 col-md-6"f>>' +
+                 '<"row mb-2"<"col-12"B>>' +
+                 '<"row"<"col-12"tr>>' +
+                 '<"row mt-3"<"col-12 col-md-5 text-center text-md-start mb-2 mb-md-0"i><"col-12 col-md-7"p>>',
+            buttons: {
+                dom: {
+                    container: {
+                        className: 'dt-buttons btn-group flex-wrap gap-1'
+                    },
+                    button: {
+                        className: 'btn'
+                    }
+                },
+                buttons: [
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard me-1"></i><span class="d-none d-sm-inline">Copiar</span>',
+                        className: 'btn-sm btn-outline-secondary'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel me-1"></i><span class="d-none d-sm-inline">Excel</span>',
+                        className: 'btn-sm btn-outline-success'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf me-1"></i><span class="d-none d-sm-inline">PDF</span>',
+                        className: 'btn-sm btn-outline-danger'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer me-1"></i><span class="d-none d-sm-inline">Imprimir</span>',
+                        className: 'btn-sm btn-outline-primary'
+                    }
+                ]
+            },
+            columnDefs: [
+                {
+                    targets: [7, 8], // QR Code e Ações não são ordenáveis
+                    orderable: false
+                },
+                {
+                    responsivePriority: 1,
+                    targets: 0 // Código sempre visível
+                },
+                {
+                    responsivePriority: 2,
+                    targets: 1 // Nome sempre visível
+                },
+                {
+                    responsivePriority: 3,
+                    targets: 6 // Estado sempre visível
+                },
+                {
+                    responsivePriority: 4,
+                    targets: 8 // Ações sempre visíveis
+                }
+            ]
+        });
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Show success message if new ativo was added
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'added') {
+            showToast('Ativo cadastrado com sucesso!', 'success');
+        } else if (urlParams.get('success') === 'updated') {
+            showToast('Ativo atualizado com sucesso!', 'success');
+        } else if (urlParams.get('success') === 'deleted') {
+            showToast('Ativo excluído com sucesso!', 'success');
+        }
+    });
+
+    // Show QR Code in Modal
+    function showQRModal(id, codigo, nome) {
+        const qrPath = `/static/qrcodes/ativo_${id}.png`;
+        document.getElementById('qrModalImage').src = qrPath;
+        document.getElementById('qrModalAtivo').textContent = `${codigo} - ${nome}`;
+        document.getElementById('qrDownloadLink').href = qrPath;
+        document.getElementById('qrDownloadLink').download = `QR_${codigo}.png`;
+
+        const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+        modal.show();
+    }
+
+    // Delete Ativo
+    function deleteAtivo(id, nome) {
+        if (confirm(`Tem certeza que deseja excluir o ativo "${nome}"?\n\nEsta ação não pode ser desfeita.`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `{{ url_for('deletar', ativo_id=0) }}`.replace('0', id);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

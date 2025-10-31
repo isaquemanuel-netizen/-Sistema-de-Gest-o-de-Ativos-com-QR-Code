@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(docker restart:*)",
+      "Bash(dir \"C:\\Users\\isaque.manuel\\Desktop\\sistema_ativos_qr\\static\" /S /B)",
+      "Bash(python generate_pwa_icons.py:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

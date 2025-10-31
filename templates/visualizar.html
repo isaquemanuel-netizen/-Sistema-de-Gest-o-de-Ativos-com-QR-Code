@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ativo[1] }} - {{ ativo[2] }}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .asset-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .asset-header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .asset-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .asset-logo img {
+            max-width: 60px;
+            max-height: 60px;
+        }
+
+        .asset-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .asset-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .asset-body {
+            padding: 2rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-badge.ativo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.manutencao {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.ativo .status-dot {
+            background: #059669;
+        }
+
+        .status-badge.inativo .status-dot {
+            background: #dc2626;
+        }
+
+        .status-badge.manutencao .status-dot {
+            background: #d97706;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .info-icon.blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .info-icon.green {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .info-icon.purple {
+            background: #e9d5ff;
+            color: #7c3aed;
+        }
+
+        .info-icon.orange {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .qr-code {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .footer a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .timestamp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary-action {
+            background: #1e40af;
+            color: white;
+        }
+
+        .btn-primary-action:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-secondary-action {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .btn-secondary-action:hover {
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="asset-card">
+        <!-- Header -->
+        <div class="asset-header">
+            <div class="asset-logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            </div>
+            <div class="asset-title">{{ ativo[1] }}</div>
+            <div class="asset-subtitle">{{ ativo[2] }}</div>
+        </div>
+
+        <!-- Body -->
+        <div class="asset-body">
+            <!-- Status Badge -->
+            <div class="text-center">
+                {% if ativo[7] == 'Ativo' %}
+                    <div class="status-badge ativo">
+                        <span class="status-dot"></span>
+                        <span>Em Operação</span>
+                    </div>
+                {% elif ativo[7] == 'Inativo' %}
+                    <div class="status-badge inativo">
+                        <span class="status-dot"></span>
+                        <span>Fora de Operação</span>
+                    </div>
+                {% else %}
+                    <div class="status-badge manutencao">
+                        <span class="status-dot"></span>
+                        <span>Em Manutenção</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Information Items -->
+            <div class="info-item">
+                <div class="info-icon blue">
+                    <i class="bi bi-upc-scan"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Número de Série</div>
+                    <div class="info-value">{{ ativo[3] }}</div>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon green">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Localização</div>
+                    <div class="info-value">{{ ativo[5] }}</div>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon purple">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Responsável</div>
+                    <div class="info-value">{{ ativo[6] }}</div>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon orange">
+                    <i class="bi bi-card-text"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Descrição</div>
+                    <div class="info-value">{{ ativo[4] }}</div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <div class="info-label mb-2">QR Code do Ativo</div>
+                <img src="{{ url_for('static', filename='qrcodes/ativo_' ~ ativo[0] ~ '.png') }}"
+                     alt="QR Code"
+                     class="qr-code img-fluid">
+
+                <div class="timestamp">
+                    <i class="bi bi-clock"></i>
+                    <span>Última verificação: <strong id="current-time"></strong></span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/" class="btn-action btn-primary-action">
+                    <i class="bi bi-house"></i>
+                    <span>Ver Todos</span>
+                </a>
+                <button onclick="window.print()" class="btn-action btn-secondary-action">
+                    <i class="bi bi-printer"></i>
+                    <span>Imprimir</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Sistema de Gestão de Ativos
+            <br>
+            <a href="/dashboard">Acessar Painel</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Update timestamp
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('pt-BR');
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Print styles
+        window.addEventListener('beforeprint', function() {
+            document.body.style.background = 'white';
+        });
+
+        window.addEventListener('afterprint', function() {
+            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        });
+    </script>
+</body>
+</html>
